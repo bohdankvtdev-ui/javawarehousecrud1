@@ -1,81 +1,80 @@
 package com.pl.warehouse.item;
 
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import com.pl.warehouse.category.Category;
+import com.pl.warehouse.category.CategoryRepository;
+import com.pl.warehouse.item.dto.ItemRequest;
+import com.pl.warehouse.supplier.Supplier;
+import com.pl.warehouse.supplier.SupplierRepository;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
-@Component
-public class  ItemService {
-    private final  ItemRepository itemRepository;
+@Service
+public class ItemService {
 
-    @Autowired
-    public  ItemService(ItemRepository itemRepository){
+    private final ItemRepository itemRepository;
+    private final CategoryRepository categoryRepository;
+    private final SupplierRepository supplierRepository;
+
+    public ItemService(
+            ItemRepository itemRepository,
+            CategoryRepository categoryRepository,
+            SupplierRepository supplierRepository
+    ) {
         this.itemRepository = itemRepository;
+        this.categoryRepository = categoryRepository;
+        this.supplierRepository = supplierRepository;
     }
 
-    public List<WarehouseItem> getWarehouseItems(){
-        List<WarehouseItem> items = itemRepository.findAll();
-
-        System.out.println(items+"ffererf");
+    // GET ALL ITEMS
+    public List<WarehouseItem> getAllItems() {
         return itemRepository.findAll();
-
     }
 
-    public List<WarehouseItem> getWarehouseItemsFromQuantity(String searchText){
-        return itemRepository.findAll().stream()
-                .filter(item->searchText.equals(Integer.valueOf(item.getQuantity())))
-                .collect(Collectors.toList());
+    // GET ITEM BY ID
+    public WarehouseItem getItemById(UUID id) {
+        return itemRepository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException("Item not found: " + id)
+                );
     }
 
-    public List<WarehouseItem> getWarehouseItemsByName(String searchText){
-        return itemRepository.findAll().stream()
-                .filter(item->item.getName().toLowerCase().contains(searchText.toLowerCase()))
-                .collect(Collectors.toList());
-    }
-    public List<WarehouseItem> getWarehouseItemsByType(String searchText){
-        return itemRepository.findAll().stream()
-                .filter(item->
-                        item.getType().toLowerCase().contains(searchText.toLowerCase()))
-                .collect(Collectors.toList());
-    }
-
-    public List<WarehouseItem> getWarehouseItemsByCategory(String searchText){
-        return itemRepository.findAll().stream()
-                .filter(item->
-                        item.getCategory().toLowerCase().contains(searchText.toLowerCase()))
-                .collect(Collectors.toList());
-    }
-
-    public List<WarehouseItem> getWarehouseItemsByTypeAndCategory(String team, String position){
-        return itemRepository.findAll().stream()
-                .filter(item->team.equals(item.getType()) && position.equals(item.getCategory()))
-                .collect(Collectors.toList());
-    }
-    public WarehouseItem addWarehouseItem(WarehouseItem item){
-        itemRepository.save(item);
-        return item;
-    }
-    public WarehouseItem updateWarehouseItem(WarehouseItem updatedWarehouseItem){
-        Optional<WarehouseItem> existingWarehouseItem  = itemRepository.findByName(updatedWarehouseItem.getName());
-        if(existingWarehouseItem.isPresent()){
-            WarehouseItem itemToUpdate = existingWarehouseItem.get();
-            itemToUpdate.setName(updatedWarehouseItem.getName());
-            itemToUpdate.setType(updatedWarehouseItem.getType());
-            itemToUpdate.setCategory(updatedWarehouseItem.getCategory());
-            itemToUpdate.setQuantity(updatedWarehouseItem.getQuantity());
-
-            itemRepository.save(itemToUpdate);
-            return itemToUpdate;
-        }
-        return null;
-    }
-
+    // CREATE ITEM
     @Transactional
-    public void deleteWarehouseItem(String itemName){
-        itemRepository.deleteByName(itemName);
+    public WarehouseItem createItem(ItemRequest request) {
+
+        Category category = categoryRepository.findById(request.categoryId())
+                .orElseThrow(() ->
+                        new RuntimeException("Category not found")
+                );
+
+        Supplier supplier = supplierRepository.findById(request.supplierId())
+                .orElseThrow(() ->
+                        new RuntimeException("Supplier not found")
+                );
+
+        WarehouseItem item = new WarehouseItem();
+
+        item.setItemName(request.itemName());
+        item.setType(request.type());
+        item.setDescription(request.description());
+        item.setCategory(category);
+        item.setSupplier(supplier);
+        item.setPrice(request.price());
+        item.setWeight(request.weight());
+
+        return itemRepository.save(item);
+    }
+
+    // DELETE ITEM
+    @Transactional
+    public void deleteItem(UUID id) {
+
+        WarehouseItem item = getItemById(id);
+
+        itemRepository.delete(item);
     }
 }

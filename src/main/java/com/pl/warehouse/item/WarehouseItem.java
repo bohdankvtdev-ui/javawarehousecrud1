@@ -1,150 +1,48 @@
 package com.pl.warehouse.item;
 
+import com.pl.warehouse.category.Category;
+import com.pl.warehouse.supplier.Supplier;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import java.math.BigDecimal;
+import java.util.UUID;
 
 @Entity
 @Table(name="warehouse_items")
+@Getter
+@Setter
+@NoArgsConstructor
 public class WarehouseItem {
     @Id
-    @Column(name = "item_name",unique=true, nullable = false)
-    private String name;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
+    @Column(length = 50)
     private String type;
-    private String category;
+
+    @Column(length = 50)
+    private String itemName;
+
     private String description;
 
-    private Integer quantity;
-    private Integer minQuantity;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
 
-    private Double price;
-    private Double weight;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "supplier_id", nullable = false)
+    private Supplier supplier;
 
-    private String location;
-    private String supplier;
-    private String status;
+    @Column(precision = 10, scale = 2, nullable = false)
+    private BigDecimal price;
 
-    private String warehouseSection;
+    @Column(precision = 10, scale = 2)
+    private BigDecimal weight;
 
-    public WarehouseItem(){
-
-    }
-
-    public WarehouseItem(String name) {
-        this.name = name;
-    }
-
-    public WarehouseItem(String name, String type, String category, String description, Integer quantity, Integer minQuantity, Double price, Double weight, String location, String supplier, String status, String warehouseSection) {
-        this.name = name;
-        this.type = type;
-        this.category = category;
-        this.description = description;
-        this.quantity = quantity;
-        this.minQuantity = minQuantity;
-        this.price = price;
-        this.weight = weight;
-        this.location = location;
-        this.supplier = supplier;
-        this.status = status;
-        this.warehouseSection = warehouseSection;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
-    }
-
-    public Integer getMinQuantity() {
-        return minQuantity;
-    }
-
-    public void setMinQuantity(Integer minQuantity) {
-        this.minQuantity = minQuantity;
-    }
-
-    public Double getPrice() {
-        return price;
-    }
-
-    public void setPrice(Double price) {
-        this.price = price;
-    }
-
-    public Double getWeight() {
-        return weight;
-    }
-
-    public void setWeight(Double weight) {
-        this.weight = weight;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-    public String getSupplier() {
-        return supplier;
-    }
-
-    public void setSupplier(String supplier) {
-        this.supplier = supplier;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public String getWarehouseSection() {
-        return warehouseSection;
-    }
-
-    public void setWarehouseSection(String warehouseSection) {
-        this.warehouseSection = warehouseSection;
-    }
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private ItemStatus status = ItemStatus.ACTIVE;
 }
