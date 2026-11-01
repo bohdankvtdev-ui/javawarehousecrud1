@@ -1,0 +1,27 @@
+# STUDY: Local PostgreSQL for the modular monolith.
+# Later: add more services here (redis, kafka, item-service, inventory-service…).
+#
+# Start:  docker compose up -d
+# Stop:   docker compose down
+# Reset:  docker compose down -v   (deletes volume / data)
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: warehouse-postgres
+    environment:
+      POSTGRES_DB: prem_stats
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: bohdan12
+    ports:
+      - "5432:5432"
+    volumes:
+      - warehouse_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d prem_stats"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  warehouse_pg_data:

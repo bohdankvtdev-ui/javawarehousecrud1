@@ -1,16 +1,29 @@
-# React + Vite
+# Warehouse frontend (study)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + TypeScript UI for **Warehouse Items**.
 
-Currently, two official plugins are available:
+Full backend learning guide: see root [`../STUDY.md`](../STUDY.md) and [`../PROJECT_MAP.md`](../PROJECT_MAP.md).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Run
 
-## React Compiler
+```bash
+npm install
+npm run dev
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Open http://localhost:5173 — Vite proxies `/api` to Spring Boot on `:8080`.
 
-## Expanding the ESLint configuration
+## Routes (React Router)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+| Path | Backend APIs |
+|------|----------------|
+| `/` | Overview of all endpoints |
+| `/items` | `/api/v1/items` search + CRUD |
+| `/categories` | `/api/v1/categories` |
+| `/suppliers` | `/api/v1/suppliers` |
+| `/warehouses` | `/api/v1/warehouses` |
+| `/inventory` | `/api/v1/inventory` (+ JDBC report) |
+
+Login: top bar → `user/user` or `admin/admin`.
+
+See root `docs/CODE_WALKTHROUGH.md` for how frontend ↔ backend wiring works.

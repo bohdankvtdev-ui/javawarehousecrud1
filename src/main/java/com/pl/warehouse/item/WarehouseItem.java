@@ -10,12 +10,29 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.util.UUID;
 
+/**
+ * STUDY: JPA {@code @Entity} = Java class mapped to a database table.
+ *
+ * <p>WarehouseItem = catalog SKU (what you sell/stock), NOT the stock quantity.
+ * Stock lives in {@code Inventory} (item + warehouse + quantity).
+ *
+ * <p>Do not return this entity from controllers — map to {@link com.pl.warehouse.item.dto.ItemResponse}
+ * so the API stays stable and does not leak persistence details / LAZY proxies.
+ *
+ * <p>Annotations:
+ * <ul>
+ *   <li>{@code @Entity} / {@code @Table} — persistence mapping</li>
+ *   <li>{@code @ManyToOne(LAZY)} — FK to category/supplier; load only when accessed (needs an open transaction)</li>
+ *   <li>{@code @Enumerated(STRING)} — store enum name, not ordinal (safer for schema evolution)</li>
+ * </ul>
+ */
 @Entity
-@Table(name="warehouse_items")
+@Table(name = "warehouse_items")
 @Getter
 @Setter
 @NoArgsConstructor
 public class WarehouseItem {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -23,7 +40,7 @@ public class WarehouseItem {
     @Column(length = 50)
     private String type;
 
-    @Column(length = 50)
+    @Column(name = "item_name", nullable = false, length = 150)
     private String itemName;
 
     private String description;
